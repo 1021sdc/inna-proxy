@@ -4,3 +4,6 @@ Airbnb-more-homes
 Airbnb-photos
 Airbnb-reviews
 node_modules
+newrelic.js
+newrelic_agent.log
+my_test_result.csv
