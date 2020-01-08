@@ -1,5 +1,5 @@
 # What image do you want to start building on?
-FROM node:10.13-alpine
+FROM node:10.17.0-alpine
 ENV NODE_ENV production
 
 # Make a folder in your image where your app's source code can live
