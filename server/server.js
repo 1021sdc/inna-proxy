@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const proxy = require('http-proxy-middleware');
+const rp = require('request-promise');
 
 const app = express();
 
@@ -11,69 +12,61 @@ const port = 8080;
 app.use(express.static(path.join(__dirname, '/../public')));
 app.use(cors());
 
+/////////////////////////////
+const reviews = 'http://34.217.147.152/reviews/';
+const listings = 'http://35.166.168.110/listings/';
+const photos = 'http://54.200.99.206/photos/';
+const moreHomes = 'http://54.244.203.223/MoreHomes/?id=';
+const booking = 'http://52.34.93.128/booking/?id=';
+const room = 'http://52.34.93.128/room/?id=';
+
+const all = [reviews, listings, photos, moreHomes, booking, room];
+
+app.get('/test/:id', (req, res) => {
+  let response = [];
+  const { id } = req.params;
+  Promise.all(all.map((addr) => {
+      rp(addr+id)
+          .then(function (res) {
+              response.push(res);
+          })
+          .then(() => {
+            if (response.length === 6) {
+              res.status(200).send(response);
+            }
+          })
+          .catch((err) => console.error(err))
+  }))
+});
+////////////////////////////
+
 app.get('/photos/:id', (req, res) => {
   const { id } = req.params;
-  res.redirect(`http://54.201.94.44/photos/${id}`);
-})
+  res.redirect(`http://54.200.99.206/photos/${id}`);
+});
 
 app.get('/listings/:id', (req, res) => {
   const { id } = req.params;
-  res.redirect(`http://34.219.65.114/listings/${id}`);
-})
-
-// app.get('/booking', (req, res) => {
-//   const { id } = req.params;
-//   res.redirect(`http://52.53.211.152:3333/booking/?id=25`);
-// })
-
-// app.get('/room', (req, res) => {
-//   const { id } = req.params;
-//   res.redirect(`http://52.53.211.152:3333/room/?id=25`);
-// })
+  res.redirect(`http://35.166.168.110/listings/${id}`);
+});
 
 app.get('/reviews/:id/', (req, res) => {
   const { id } = req.params;
   res.redirect(`http://34.217.147.152/reviews/${id}`);
-})
+});
 
-// app.get('/MoreHomes', (req, res) => {
-//   const { id } = req.params;
-//   res.redirect(`http://35.164.175.129:3005/MoreHomes/${id}`);
-//   // res.redirect(`http://35.164.175.129:3005/MoreHomes`);
-// })
-
-// app.use('/MoreHomes',
-//   proxy({
-//     target: 'http://35.164.175.129/MoreHomes',
-//       pathRewrite: (path, req) => {
-//         return path.split('/').slice(2).join('/');
-//       }
-//     })
-// );
-
-// app.use('/booking',
-//   proxy({
-//     target: 'http://localhost:3001/',
-//       pathRewrite: (path, req) => {
-
-//         return path
-//       }
-//     })
-// );
-
-// app.use('/room',
-//   proxy({
-//     target: 'http://localhost:3001/',
-//       pathRewrite: (path, req) => {
-
-//         return path
-//       }
-//     })
-// );
+app.use('/MoreHomes',
+  proxy({
+    target: 'http://54.244.203.223/MoreHomes',
+    pathRewrite: (path, req) => {
+      return path.split('/').slice(2).join('/');
+    }
+  })
+);
 
 app.use('/booking',
   proxy({
-    target: 'http://54.218.70.41/booking',
+    target: 'http://52.34.93.128/booking',
     pathRewrite: (path, req) => {
 
       var querystring = '?';
@@ -83,7 +76,7 @@ app.use('/booking',
           querystring += '&';
         }
 
-        querystring += `${ key }=${ req.query[key] }`;
+        querystring += `${key}=${req.query[key]}`;
       }
 
       return querystring;
@@ -93,7 +86,7 @@ app.use('/booking',
 
 app.use('/room',
   proxy({
-    target: 'http://54.218.70.41/room',
+    target: 'http://52.34.93.128/room',
     pathRewrite: (path, req) => {
 
       var querystring = '?';
@@ -103,7 +96,7 @@ app.use('/room',
           querystring += '&';
         }
 
-        querystring += `${ key }=${ req.query[key] }`;
+        querystring += `${key}=${req.query[key]}`;
       }
 
       return querystring;
