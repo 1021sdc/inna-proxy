@@ -1,1 +1,3 @@
-# photos-proxy
+# Better Homes Proxy
+
+![](proxyreadme.png)
